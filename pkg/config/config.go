@@ -15,38 +15,39 @@ type Config struct {
 }
 
 type Spec struct {
-	System    System        `yaml:"system" validate:"required"`
-	Storages  []SpecStorage `yaml:"storages" validate:"required,dive"`
-	Databases []Databases   `yaml:"databases" validate:"required,dive"`
-	Backups   []Backup      `yaml:"backups" validate:"required,dive"`
+	System    System     `yaml:"system" validate:"required"`
+	Storages  []Storage  `yaml:"storages" validate:"required,dive"`
+	Databases []Database `yaml:"databases" validate:"required,dive"`
+	Backups   []Backup   `yaml:"backups" validate:"required,dive"`
 }
 
 type Backup struct {
-	Name      string             `yaml:"name" validate:"required"`
-	Schedule  string             `yaml:"schedule" validate:"required"`
-	Databases []DatabasesElement `yaml:"databases" validate:"required,dive"`
-	Storage   StorageElement     `yaml:"storage" validate:"required"`
+	Name      string            `yaml:"name" validate:"required"`
+	Schedule  string            `yaml:"schedule" validate:"required"`
+	Databases []DatabaseElement `yaml:"databases" validate:"required,dive"`
+	Storage   StorageElement    `yaml:"storage" validate:"required"`
 }
 
 type StorageElement struct {
 	Name string `yaml:"name" validate:"required"`
 }
 
-type DatabasesElement struct {
+type DatabaseElement struct {
 	Name string `yaml:"name" validate:"required"`
 }
 
-type Databases struct {
+type Database struct {
 	Name     string   `yaml:"name" validate:"required"`
 	Type     string   `yaml:"type" validate:"required,eq=postgres"`
 	Host     string   `yaml:"host" validate:"required"`
-	Port     int64    `yaml:"port" validate:"required"`
+	Port     string   `yaml:"port" validate:"required"`
+	DB       string   `yaml:"db" validate:"required"`
 	User     string   `yaml:"user" validate:"required"`
 	Password string   `yaml:"password" validate:"required"`
 	Options  []string `yaml:"options"`
 }
 
-type SpecStorage struct {
+type Storage struct {
 	Name string `yaml:"name" validate:"required"`
 	S3   S3     `yaml:"s3" validate:"required"`
 }

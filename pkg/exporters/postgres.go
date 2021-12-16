@@ -1,9 +1,13 @@
 package exporters
 
 import (
+	"bytes"
 	"fmt"
+	"os"
 	"os/exec"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 var (
@@ -21,6 +25,8 @@ type Postgres struct {
 	DB string
 	// Connection Username
 	Username string
+	// Password
+	Password string
 	// Extra pg_dump options
 	// e.g []string{"--inserts"}
 	Options []string
@@ -30,11 +36,20 @@ type Postgres struct {
 func (x Postgres) Export() *ExportResult {
 	result := &ExportResult{MIME: "application/x-tar"}
 	result.Path = fmt.Sprintf(`bu_%v_%v.sql.tar.gz`, x.DB, time.Now().Unix())
-	options := append(x.dumpOptions(), "-Fc", fmt.Sprintf(`-f%v`, result.Path))
-	out, err := exec.Command(PGDumpCmd, options...).Output()
+	options := append(x.dumpOptions(), "-v", "-Fc", fmt.Sprintf(`-f%v`, result.Path))
+	cmd := exec.Command(PGDumpCmd, options...)
+	cmd.Env = os.Environ()
+	cmd.Env = append(cmd.Env, "PGPASSWORD="+x.Password)
+	var out bytes.Buffer
+	var stderr bytes.Buffer
+	cmd.Stdout = &out
+	cmd.Stderr = &stderr
+	err := cmd.Run()
+	logrus.Println(stderr.String())
 	if err != nil {
-		result.Error = makeErr(err, string(out))
+		result.Error = makeErr(err, stderr.String())
 	}
+	logrus.Println(out.String())
 	return result
 }
 

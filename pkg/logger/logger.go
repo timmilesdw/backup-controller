@@ -16,6 +16,7 @@ func InitLog(level string) error {
 	logrus.SetFormatter(&logrus.TextFormatter{
 		FullTimestamp: true,
 	})
+	logrus.SetReportCaller(true)
 	logrus.SetOutput(os.Stdout)
 	return nil
 }

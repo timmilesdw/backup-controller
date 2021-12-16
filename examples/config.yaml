@@ -28,6 +28,16 @@ spec:
       type: postgres
       host: test-pg
       port: 5432
+      db: test
+      user: $TEST-PG-USER
+      password: $TEST-PG-PASSWORD
+      options:
+        - --insert
+    - name: test-pg-2
+      type: postgres
+      host: test-pg
+      db: test
+      port: 5432
       user: $TEST-PG-USER
       password: $TEST-PG-PASSWORD
       options:
@@ -41,12 +51,6 @@ spec:
       # Базы данных которые нужно бэкапить по этому расписанию
       databases:
         - name: test-pg
+        - name: test-pg-2
       storage:
         name: external-s3
-      
-    - name: mysql-backup-task
-      schedule: "0 8 * * *"
-      databases:
-        - name: test-mysql
-      storage:
-        name: local-minio

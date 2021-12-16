@@ -1,6 +1,11 @@
 package main
 
 import (
+	"os"
+	"os/signal"
+	"syscall"
+
+	"git.ufanet.ru/hw-k8s/software/backup-controller/pkg/backupper"
 	"git.ufanet.ru/hw-k8s/software/backup-controller/pkg/config"
 	"git.ufanet.ru/hw-k8s/software/backup-controller/pkg/logger"
 	"github.com/go-playground/validator/v10"
@@ -32,4 +37,12 @@ func main() {
 		}
 		logrus.Fatal(err)
 	}
+	backupper := backupper.Backupper{
+		ConfigSpec: cfg.Spec,
+	}
+	backupper.Start()
+
+	quitChannel := make(chan os.Signal, 1)
+	signal.Notify(quitChannel, syscall.SIGINT, syscall.SIGTERM)
+	<-quitChannel
 }
