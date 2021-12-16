@@ -1,0 +1,39 @@
+apiVersion: backup-controller.ufanet.ru/v1alpha1
+spec:
+  system:
+    logLevel: debug
+    web:
+      port: 3000
+
+  # Описание storages куда складывать бэкап
+  storages:
+    - name: s3
+      s3:
+        endpoint: minio:9000
+        region: ufa-1
+        bucket: dbbackups
+        access-key: minio
+        client-secret: miniostorage
+
+  # Описание баз данных которые нужно бэкапить
+  databases:
+    - name: pg
+      type: postgres
+      host: postgres
+      port: 5432
+      db: postgres
+      user: postgres
+      password: root
+      options:
+        - --insert
+
+  # Время когда производить бэкапы
+  backups:
+    # Крон по спецификации github.com/robfig/cron
+    - name: pg-backup-task
+      schedule: "* * * * *"
+      # Базы данных которые нужно бэкапить по этому расписанию
+      databases:
+        - name: pg
+      storage:
+        name: s3
