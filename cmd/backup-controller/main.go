@@ -20,7 +20,7 @@ func main() {
 	if err != nil {
 		logrus.Fatal(err)
 	}
-	_, err = config.NewConfig(cfgPath)
+	cfg, err := config.NewConfig(cfgPath)
 	if err != nil {
 		if verr, ok := err.(validator.ValidationErrors); ok {
 			for _, err := range verr {
@@ -32,5 +32,4 @@ func main() {
 		}
 		logrus.Fatal(err)
 	}
-
 }

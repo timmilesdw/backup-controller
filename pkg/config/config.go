@@ -37,12 +37,13 @@ type DatabasesElement struct {
 }
 
 type Databases struct {
-	Name     string `yaml:"name" validate:"required"`
-	Type     string `yaml:"type" validate:"required"`
-	Host     string `yaml:"host" validate:"required"`
-	Port     int64  `yaml:"port" validate:"required"`
-	User     string `yaml:"user" validate:"required"`
-	Password string `yaml:"password" validate:"required"`
+	Name     string   `yaml:"name" validate:"required"`
+	Type     string   `yaml:"type" validate:"required,eq=postgres"`
+	Host     string   `yaml:"host" validate:"required"`
+	Port     int64    `yaml:"port" validate:"required"`
+	User     string   `yaml:"user" validate:"required"`
+	Password string   `yaml:"password" validate:"required"`
+	Options  []string `yaml:"options"`
 }
 
 type SpecStorage struct {

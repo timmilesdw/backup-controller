@@ -28,13 +28,8 @@ spec:
       port: 5432
       user: $TEST-PG-USER
       password: $TEST-PG-PASSWORD
-
-    - name: test-mysql
-      type: mysql
-      host: test-mysql
-      port: 3306
-      user: $TEST-MYSQL-USER
-      password: $TEST-MYSQL-PASSWORD
+      options:
+        - --insert
 
   # Время когда производить бэкапы
   backups:
