@@ -1,0 +1,55 @@
+apiVersion: backup-controller.ufanet.ru/v1alpha1
+spec:
+  system:
+    logLevel: debug
+    web:
+      port: 3000
+
+  # Описание storages куда складывать бэкап
+  storages:
+    - name: local-s3
+      s3:
+        region: aaa
+        bucket: aaa
+        access-key: aaa
+        client-secret: aaa
+    - name: external-s3
+      s3:
+        region: bbb
+        bucket: bbb
+        access-key: bbb
+        client-secret: bbb
+
+  # Описание баз данных которые нужно бэкапить
+  databases:
+    - name: test-pg
+      type: postgres
+      host: test-pg
+      port: 5432
+      user: $TEST-PG-USER
+      password: $TEST-PG-PASSWORD
+
+    - name: test-mysql
+      type: mysql
+      host: test-mysql
+      port: 3306
+      user: $TEST-MYSQL-USER
+      password: $TEST-MYSQL-PASSWORD
+
+  # Время когда производить бэкапы
+  backups:
+    # Крон по спецификации github.com/robfig/cron
+    - name: pg-backup-task
+      schedule: "0 5 * * *"
+      # Базы данных которые нужно бэкапить по этому расписанию
+      databases:
+        - name: test-pg
+      storage:
+        name: external-s3
+      
+    - name: mysql-backup-task
+      schedule: "0 8 * * *"
+      databases:
+        - name: test-mysql
+      storage:
+        name: local-minio
