@@ -9,12 +9,14 @@ spec:
   storages:
     - name: local-s3
       s3:
+        endpoint: http://127.0.0.1:9000
         region: aaa
         bucket: aaa
         access-key: aaa
         client-secret: aaa
     - name: external-s3
       s3:
+        endpoint: http://example.host:9000
         region: bbb
         bucket: bbb
         access-key: bbb

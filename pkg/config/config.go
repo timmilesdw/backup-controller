@@ -52,6 +52,7 @@ type SpecStorage struct {
 }
 
 type S3 struct {
+	Endpoint     string `yaml:"endpoint" validate:"required"`
 	Region       string `yaml:"region" validate:"required"`
 	Bucket       string `yaml:"bucket" validate:"required"`
 	AccessKey    string `yaml:"access-key" validate:"required"`
