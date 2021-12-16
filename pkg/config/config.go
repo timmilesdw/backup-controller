@@ -10,22 +10,26 @@ import (
 )
 
 type Config struct {
-	APIVersion string `yaml:"apiVersion" validate:"required"`
+	APIVersion string `yaml:"apiVersion" validate:"required,eq=backup-controller.ufanet.ru/v1alpha1"`
 	Spec       Spec   `yaml:"spec" validate:"required"`
 }
 
 type Spec struct {
 	System    System        `yaml:"system" validate:"required"`
-	Storages  []SpecStorage `yaml:"storages" validate:"required"`
-	Databases []Databases   `yaml:"databases" validate:"required"`
-	Backups   []Backup      `yaml:"backups" validate:"required"`
+	Storages  []SpecStorage `yaml:"storages" validate:"required,dive"`
+	Databases []Databases   `yaml:"databases" validate:"required,dive"`
+	Backups   []Backup      `yaml:"backups" validate:"required,dive"`
 }
 
 type Backup struct {
 	Name      string             `yaml:"name" validate:"required"`
 	Schedule  string             `yaml:"schedule" validate:"required"`
-	Databases []DatabasesElement `yaml:"databases" validate:"required"`
-	Storage   SpecStorageName    `yaml:"storage" validate:"required"`
+	Databases []DatabasesElement `yaml:"databases" validate:"required,dive"`
+	Storage   StorageElement     `yaml:"storage" validate:"required"`
+}
+
+type StorageElement struct {
+	Name string `yaml:"name" validate:"required"`
 }
 
 type DatabasesElement struct {
@@ -42,16 +46,8 @@ type Databases struct {
 }
 
 type SpecStorage struct {
-	SpecStorageName
-	SpecStorageS3
-}
-
-type SpecStorageName struct {
 	Name string `yaml:"name" validate:"required"`
-}
-
-type SpecStorageS3 struct {
-	S3 S3 `yaml:"s3" validate:"required"`
+	S3   S3     `yaml:"s3" validate:"required"`
 }
 
 type S3 struct {
@@ -85,10 +81,12 @@ func NewConfig(configPath string) (*Config, error) {
 	if err := d.Decode(&config); err != nil {
 		return nil, err
 	}
+
 	err = validate.Struct(config)
 	if err != nil {
 		return nil, err
 	}
+
 	return config, nil
 
 }
