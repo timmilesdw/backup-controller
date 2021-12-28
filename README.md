@@ -1,4 +1,6 @@
 # Backup Controller
+[![CircleCI](https://circleci.com/gh/timmilesdw/backup-controller/tree/main.svg?style=svg)](https://circleci.com/gh/timmilesdw/backup-controller/tree/main)
+
 
 Backup controller is a lightweight golang program to back up databases.
 Currently, backup-controller implements backups using ```pg_dump```
