@@ -1,3 +1,21 @@
+# Backup Controller
+
+Backup controller is a lightweight golang program to back up databases.
+Currently, backup-controller implements backups using ```pg_dump```
+
+## Usage
+
+* Docker
+```bash
+docker run \
+  -v ./backup-controller:/etc/backup-controller \
+  -p 3000:3000 \ 
+  timmiles/backup-controller:latest --config /etc/backup-controller/config.yaml
+```
+
+## Configuration Example
+
+```yaml
 apiVersion: backup-controller.ufanet.ru/v1alpha1
 spec:
   system:
@@ -6,31 +24,31 @@ spec:
       port: 3000
       metrics: /metrics
 
-  # Описание storages куда складывать бэкап
+  # S3 storages configuration
   storages:
     - name: s3
       s3:
         endpoint: minio:9000
-        region: ufa-1
+        region: us-west-1
         bucket: dbbackups
         access-key: minio
         client-secret: miniostorage
     - name: s3-2
       s3:
         endpoint: minio:9000
-        region: ufa-1
+        region: us-east-1
         bucket: dbbackups
         access-key: minio
         client-secret: miniostorage
     - name: s3-3
       s3:
         endpoint: minio:9000
-        region: ufa-1
+        region: us-east-1
         bucket: dbbackups
         access-key: minio
         client-secret: miniostorage
 
-  # Описание баз данных которые нужно бэкапить
+  # Databases configuration
   databases:
     - name: pg
       type: postgres
@@ -58,27 +76,42 @@ spec:
       options:
         - --insert
 
-  # Время когда производить бэкапы
+  # Cron schedules
   backups:
-    # Крон по спецификации github.com/robfig/cron
+    # Cron package used: github.com/robfig/cron
     - name: pg-backup-task
       schedule: "* * * * *"
-      # Базы данных которые нужно бэкапить по этому расписанию
+      # Databases to backup
       databases:
         - name: pg
       storage:
         name: s3
     - name: pg-backup-task-2
       schedule: "* * * * *"
-      # Базы данных которые нужно бэкапить по этому расписанию
       databases:
         - name: pg-1
       storage:
         name: s3
     - name: pg-backup-task-3
       schedule: "*/3 * * * *"
-      # Базы данных которые нужно бэкапить по этому расписанию
       databases:
         - name: pg-2
       storage:
         name: s3
+```
+
+## Roadmap
+* Databases
+   - [x] Postgres (pg_dump)
+   - [ ] Postgres (pg_dumpall)
+   - [ ] Postgres (pgBackRest)
+   - [ ] MySQL
+* Storages
+   - [x] S3
+   - [ ] ISCSI
+   - [ ] SFTP
+* Features
+   - [x] Upload backups
+   - [x] Prometheus Metrics
+   - [ ] Manage backups (delete, restore, retention)
+   - [ ] WebUI

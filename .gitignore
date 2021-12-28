@@ -1,0 +1,5 @@
+.vscode/
+.idea/
+deploy/compose/minio/
+deploy/compose/postgres/
+deploy/compose/prometheus/

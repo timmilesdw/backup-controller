@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/sirupsen/logrus"
+	"github.com/timmilesdw/backup-controller/pkg/config"
 )
 
 func InitLog(level string) error {
@@ -19,4 +20,12 @@ func InitLog(level string) error {
 	logrus.SetReportCaller(true)
 	logrus.SetOutput(os.Stdout)
 	return nil
+}
+
+func UpdateLogLevel(l config.System) {
+	lvl, err := logrus.ParseLevel(l.LogLevel)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+	logrus.SetLevel(lvl)
 }

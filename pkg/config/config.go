@@ -66,7 +66,8 @@ type System struct {
 }
 
 type Web struct {
-	Port int `yaml:"port" validate:"required"`
+	Port    string `yaml:"port" validate:"required"`
+	Metrics string `yaml:"metrics" validate:"required"`
 }
 
 func NewConfig(configPath string) (*Config, error) {

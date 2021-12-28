@@ -5,11 +5,12 @@ import (
 	"os/signal"
 	"syscall"
 
-	"git.ufanet.ru/hw-k8s/software/backup-controller/pkg/backupper"
-	"git.ufanet.ru/hw-k8s/software/backup-controller/pkg/config"
-	"git.ufanet.ru/hw-k8s/software/backup-controller/pkg/logger"
 	"github.com/go-playground/validator/v10"
 	"github.com/sirupsen/logrus"
+	"github.com/timmilesdw/backup-controller/pkg/backupper"
+	"github.com/timmilesdw/backup-controller/pkg/config"
+	"github.com/timmilesdw/backup-controller/pkg/logger"
+	"github.com/timmilesdw/backup-controller/pkg/metrics"
 )
 
 func init() {
@@ -37,9 +38,15 @@ func main() {
 		}
 		logrus.Fatal(err)
 	}
+	logger.UpdateLogLevel(cfg.Spec.System)
 	backupper := backupper.Backupper{
 		ConfigSpec: cfg.Spec,
 	}
+	backupper.ConfigureCron()
+	ms := metrics.RegisterMetrics(cfg.Spec)
+	go ms.Start()
+	logrus.Infof("Started metrics server on port %s, route %s", ms.Port, ms.Route)
+
 	backupper.Start()
 
 	quitChannel := make(chan os.Signal, 1)

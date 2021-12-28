@@ -4,53 +4,79 @@ spec:
     logLevel: debug
     web:
       port: 3000
+      metrics: /metrics
 
-  # Описание storages куда складывать бэкап
+  # S3 storages configuration
   storages:
-    - name: local-s3
+    - name: s3
       s3:
-        endpoint: http://127.0.0.1:9000
-        region: aaa
-        bucket: aaa
-        access-key: aaa
-        client-secret: aaa
-    - name: external-s3
+        endpoint: minio:9000
+        region: us-west-1
+        bucket: dbbackups
+        access-key: minio
+        client-secret: miniostorage
+    - name: s3-2
       s3:
-        endpoint: http://example.host:9000
-        region: bbb
-        bucket: bbb
-        access-key: bbb
-        client-secret: bbb
+        endpoint: minio:9000
+        region: us-east-1
+        bucket: dbbackups
+        access-key: minio
+        client-secret: miniostorage
+    - name: s3-3
+      s3:
+        endpoint: minio:9000
+        region: us-east-1
+        bucket: dbbackups
+        access-key: minio
+        client-secret: miniostorage
 
-  # Описание баз данных которые нужно бэкапить
+  # Databases configuration
   databases:
-    - name: test-pg
+    - name: pg
       type: postgres
-      host: test-pg
+      host: postgres
       port: 5432
-      db: test
-      user: $TEST-PG-USER
-      password: $TEST-PG-PASSWORD
+      db: postgres
+      user: postgres
+      password: root
       options:
         - --insert
-    - name: test-pg-2
+    - name: pg-1
       type: postgres
-      host: test-pg
-      db: test
+      host: postgres
       port: 5432
-      user: $TEST-PG-USER
-      password: $TEST-PG-PASSWORD
+      db: postgres
+      user: postgres
+      password: root
+    - name: pg-2
+      type: postgres
+      host: postgres
+      port: 5432
+      db: postgres
+      user: postgres
+      password: root
       options:
         - --insert
 
-  # Время когда производить бэкапы
+  # Cron schedules
   backups:
-    # Крон по спецификации github.com/robfig/cron
+    # Cron package used: github.com/robfig/cron
     - name: pg-backup-task
-      schedule: "0 5 * * *"
-      # Базы данных которые нужно бэкапить по этому расписанию
+      schedule: "* * * * *"
+      # Databases to backup
       databases:
-        - name: test-pg
-        - name: test-pg-2
+        - name: pg
       storage:
-        name: external-s3
+        name: s3
+    - name: pg-backup-task-2
+      schedule: "* * * * *"
+      databases:
+        - name: pg-1
+      storage:
+        name: s3
+    - name: pg-backup-task-3
+      schedule: "*/3 * * * *"
+      databases:
+        - name: pg-2
+      storage:
+        name: s3

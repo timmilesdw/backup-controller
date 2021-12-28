@@ -3,10 +3,11 @@ package backupper
 import (
 	"fmt"
 
-	"git.ufanet.ru/hw-k8s/software/backup-controller/pkg/config"
-	"git.ufanet.ru/hw-k8s/software/backup-controller/pkg/exporters"
 	"github.com/robfig/cron/v3"
 	"github.com/sirupsen/logrus"
+	"github.com/timmilesdw/backup-controller/pkg/config"
+	"github.com/timmilesdw/backup-controller/pkg/exporters"
+	"github.com/timmilesdw/backup-controller/pkg/metrics"
 )
 
 var c = cron.New()
@@ -16,13 +17,14 @@ type Backupper struct {
 }
 
 func (b Backupper) Start() {
-	b.ConfigureCron()
 	logrus.Info("Started cron scheduler")
 	c.Start()
 }
 
 func (b Backupper) ConfigureCron() {
 	for _, backup := range b.ConfigSpec.Backups {
+		backup := backup
+		logrus.Infof("Setting backup task %s", backup.Name)
 		var databases []config.Database
 		for _, d := range backup.Databases {
 			db, err := b.FindDatabase(d)
@@ -38,16 +40,23 @@ func (b Backupper) ConfigureCron() {
 		c.AddFunc(
 			backup.Schedule,
 			func() {
+				logrus.Printf("Starting task %s", backup.Name)
 				for _, database := range databases {
+					metrics.RunningBackups.WithLabelValues(backup.Name).Inc()
 					err := b.BackupDatabase(database, *storage)
 					if err != nil {
-						logrus.Fatal(err)
+						metrics.RunningBackups.WithLabelValues(backup.Name).Dec()
+						metrics.FailedBackups.WithLabelValues(backup.Name).Inc()
+						logrus.Fatalf("Backup: [%s]: %s", backup.Name, err)
 					}
 					logrus.Infof(
-						"Database %s successfully backupped to %s",
+						"Backup: [%s]: Database %s successfully backupped to %s",
+						backup.Name,
 						database.Name,
 						storage.Name,
 					)
+					metrics.RunningBackups.WithLabelValues(backup.Name).Dec()
+					metrics.SuccessfullBackups.WithLabelValues(backup.Name).Inc()
 				}
 			},
 		)
@@ -83,13 +92,14 @@ func (b Backupper) BackupDatabase(d config.Database, s config.Storage) error {
 	}
 	if d.Type == "postgres" {
 		db := exporters.Postgres{
+			Name:     d.Name,
 			Host:     d.Host,
 			Port:     d.Port,
 			DB:       d.DB,
 			Username: d.User,
 			Password: d.Password,
 		}
-		err := db.Export().To(d.Name+"_backups/", &storage)
+		err := db.Export().To(d.Name+d.DB+"_backups/", &storage)
 		if err != nil {
 			return err
 		}

@@ -9,9 +9,8 @@ services:
       PGPASSWORD: root    
     volumes:
       - ./backup-controller:/etc/backup-controller
+    restart: always
     command: --config /etc/backup-controller/config.yaml
-    # entrypoint: pg_dump
-    # command: -v -Fc -f test.sql.tar.gz -d postgres -h postgres -p 5432 -U postgres
   minio:
     image: minio/minio:RELEASE.2021-12-10T23-03-39Z.fips
     environment:
@@ -34,3 +33,20 @@ services:
     restart: always
     ports:
       - 8080:8080
+  prometheus:
+    image: prom/prometheus:v2.32.0
+    volumes:
+      - ./prometheus/:/etc/prometheus/
+      - ./prometheus/data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yaml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    ports:
+      - 9090:9090
+  
+  grafana:
+    image: grafana/grafana:8.3.3
+    ports:
+      - 3000:3000
