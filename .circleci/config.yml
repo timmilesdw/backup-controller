@@ -60,13 +60,13 @@ workflows:
       - build:
           filters:
             branches:
-              only: master
+              only: main
       - publish-latest:
           requires:
             - build
           filters:
             branches:
-              only: master
+              only: main
   build-tags:
     jobs:
       - build:
