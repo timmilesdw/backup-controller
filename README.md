@@ -1,6 +1,7 @@
 # Backup Controller
 [![CircleCI](https://circleci.com/gh/timmilesdw/backup-controller/tree/main.svg?style=svg)](https://circleci.com/gh/timmilesdw/backup-controller/tree/main)
 
+[![dockeri.co](https://dockeri.co/image/timmiles/backup-controller)](https://hub.docker.com/r/timmiles/backup-controller)
 
 Backup controller is a lightweight golang program to back up databases.
 Currently, backup-controller implements backups using ```pg_dump```
@@ -8,6 +9,7 @@ Currently, backup-controller implements backups using ```pg_dump```
 ## Usage
 
 * Docker
+
 ```bash
 docker run \
   -v $PWD/backup-controller:/etc/backup-controller \
