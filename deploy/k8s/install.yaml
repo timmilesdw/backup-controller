@@ -1,0 +1,89 @@
+apiVersion: v1
+data:
+  config.yaml: |
+    YXBpVmVyc2lvbjogYmFja3VwLWNvbnRyb2xsZXIudWZhbmV0LnJ1L3YxYWxwaGExCnNwZW
+    M6CiAgc3lzdGVtOgogICAgbG9nTGV2ZWw6IGRlYnVnCiAgICB3ZWI6CiAgICAgIHBvcnQ6
+    IDMwMDAKICAgICAgbWV0cmljczogL21ldHJpY3MKCiAgIyBTMyBzdG9yYWdlcyBjb25maW
+    d1cmF0aW9uCiAgc3RvcmFnZXM6CiAgICAtIG5hbWU6IHMzCiAgICAgIHMzOgogICAgICAg
+    IGVuZHBvaW50OiBtaW5pbzo5MDAwCiAgICAgICAgcmVnaW9uOiB1cy13ZXN0LTEKICAgIC
+    AgICBidWNrZXQ6IGRiYmFja3VwcwogICAgICAgIGFjY2Vzcy1rZXk6IG1pbmlvCiAgICAg
+    ICAgY2xpZW50LXNlY3JldDogbWluaW9zdG9yYWdlCiAgICAtIG5hbWU6IHMzLTIKICAgIC
+    AgczM6CiAgICAgICAgZW5kcG9pbnQ6IG1pbmlvOjkwMDAKICAgICAgICByZWdpb246IHVz
+    LWVhc3QtMQogICAgICAgIGJ1Y2tldDogZGJiYWNrdXBzCiAgICAgICAgYWNjZXNzLWtleT
+    ogbWluaW8KICAgICAgICBjbGllbnQtc2VjcmV0OiBtaW5pb3N0b3JhZ2UKICAgIC0gbmFt
+    ZTogczMtMwogICAgICBzMzoKICAgICAgICBlbmRwb2ludDogbWluaW86OTAwMAogICAgIC
+    AgIHJlZ2lvbjogdXMtZWFzdC0xCiAgICAgICAgYnVja2V0OiBkYmJhY2t1cHMKICAgICAg
+    ICBhY2Nlc3Mta2V5OiBtaW5pbwogICAgICAgIGNsaWVudC1zZWNyZXQ6IG1pbmlvc3Rvcm
+    FnZQoKICAjIERhdGFiYXNlcyBjb25maWd1cmF0aW9uCiAgZGF0YWJhc2VzOgogICAgLSBu
+    YW1lOiBwZwogICAgICB0eXBlOiBwb3N0Z3JlcwogICAgICBob3N0OiBwb3N0Z3JlcwogIC
+    AgICBwb3J0OiA1NDMyCiAgICAgIGRiOiBwb3N0Z3JlcwogICAgICB1c2VyOiBwb3N0Z3Jl
+    cwogICAgICBwYXNzd29yZDogcm9vdAogICAgICBvcHRpb25zOgogICAgICAgIC0gLS1pbn
+    NlcnQKICAgIC0gbmFtZTogcGctMQogICAgICB0eXBlOiBwb3N0Z3JlcwogICAgICBob3N0
+    OiBwb3N0Z3JlcwogICAgICBwb3J0OiA1NDMyCiAgICAgIGRiOiBwb3N0Z3JlcwogICAgIC
+    B1c2VyOiBwb3N0Z3JlcwogICAgICBwYXNzd29yZDogcm9vdAogICAgLSBuYW1lOiBwZy0y
+    CiAgICAgIHR5cGU6IHBvc3RncmVzCiAgICAgIGhvc3Q6IHBvc3RncmVzCiAgICAgIHBvcn
+    Q6IDU0MzIKICAgICAgZGI6IHBvc3RncmVzCiAgICAgIHVzZXI6IHBvc3RncmVzCiAgICAg
+    IHBhc3N3b3JkOiByb290CiAgICAgIG9wdGlvbnM6CiAgICAgICAgLSAtLWluc2VydAoKIC
+    AjIENyb24gc2NoZWR1bGVzCiAgYmFja3VwczoKICAgICMgQ3JvbiBwYWNrYWdlIHVzZWQ6
+    IGdpdGh1Yi5jb20vcm9iZmlnL2Nyb24KICAgIC0gbmFtZTogcGctYmFja3VwLXRhc2sKIC
+    AgICAgc2NoZWR1bGU6ICIqICogKiAqICoiCiAgICAgICMgRGF0YWJhc2VzIHRvIGJhY2t1
+    cAogICAgICBkYXRhYmFzZXM6CiAgICAgICAgLSBuYW1lOiBwZwogICAgICBzdG9yYWdlOg
+    ogICAgICAgIG5hbWU6IHMzCiAgICAtIG5hbWU6IHBnLWJhY2t1cC10YXNrLTIKICAgICAg
+    c2NoZWR1bGU6ICIqICogKiAqICoiCiAgICAgIGRhdGFiYXNlczoKICAgICAgICAtIG5hbW
+    U6IHBnLTEKICAgICAgc3RvcmFnZToKICAgICAgICBuYW1lOiBzMwogICAgLSBuYW1lOiBw
+    Zy1iYWNrdXAtdGFzay0zCiAgICAgIHNjaGVkdWxlOiAiKi8zICogKiAqICoiCiAgICAgIG
+    RhdGFiYXNlczoKICAgICAgICAtIG5hbWU6IHBnLTIKICAgICAgc3RvcmFnZToKICAgICAg
+    ICBuYW1lOiBzMw==
+kind: Secret
+metadata:
+  labels:
+    app: backup-controller
+  name: backup-controller
+type: Opaque
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backup-controller
+spec:
+  ports:
+  - name: http
+    port: 3000
+    targetPort: http
+  selector:
+    app: backup-controller
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: backup-controller
+  name: backup-controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backup-controller
+  template:
+    metadata:
+      labels:
+        app: backup-controller
+    spec:
+      containers:
+      - args:
+        - --config
+        - /etc/backup-controller/config.yaml
+        image: timmiles/backup-controller:latest
+        name: backup-controller
+        ports:
+        - containerPort: 3000
+          name: http
+        resources: {}
+        volumeMounts:
+        - mountPath: /etc/backup-controller
+          name: secret
+      volumes:
+      - name: secret
+        secret:
+          secretName: backup-controller

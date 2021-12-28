@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: backup-controller
+spec:
+  selector:
+    app: backup-controller
+  type: ClusterIP
+  ports:
+    - port: 3000
+      name: http
+      targetPort: http

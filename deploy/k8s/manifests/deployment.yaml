@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: backup-controller
+  name: backup-controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backup-controller
+  template:
+    metadata:
+      labels:
+        app: backup-controller
+    spec:
+      volumes:
+        - name: secret
+          secret:
+            secretName: backup-controller
+      containers:
+      - image: timmiles/backup-controller:latest
+        name: backup-controller
+        args:
+          - --config
+          - /etc/backup-controller/config.yaml
+        volumeMounts:
+          - mountPath: /etc/backup-controller
+            name: secret
+        ports:
+          - containerPort: 3000
+            name: http
+        resources: {}
