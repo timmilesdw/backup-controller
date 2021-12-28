@@ -8,9 +8,8 @@ Currently, backup-controller implements backups using ```pg_dump```
 * Docker
 ```bash
 docker run \
-  -v ./backup-controller:/etc/backup-controller \
-  -p 3000:3000 \ 
-  timmiles/backup-controller:latest --config /etc/backup-controller/config.yaml
+  -v $PWD/backup-controller:/etc/backup-controller \
+  -p 3000:3000 timmiles/backup-controller:latest --config /etc/backup-controller/config.yaml
 ```
 
 ## Configuration Example
