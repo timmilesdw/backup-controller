@@ -16,6 +16,11 @@ docker run \
   -p 3000:3000 timmiles/backup-controller:latest --config /etc/backup-controller/config.yaml
 ```
 
+* Kubernetes
+```bash
+kubectl apply -f https://raw.githubusercontent.com/timmilesdw/backup-controller/main/deploy/k8s/install.yaml
+```
+
 ## Configuration Example
 
 ```yaml
@@ -118,3 +123,9 @@ spec:
    - [x] Prometheus Metrics
    - [ ] Manage backups (delete, restore, retention)
    - [ ] WebUI
+* Kubernetes
+  - [ ] Auto reload config
+
+### Special Thanks
+
+Thanks to [keighl](https://github.com/keighl) for creating [this](https://github.com/keighl/barkup) beautiful package which became the starting point for this project
