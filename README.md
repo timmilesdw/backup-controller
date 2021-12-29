@@ -24,7 +24,7 @@ kubectl apply -f https://raw.githubusercontent.com/timmilesdw/backup-controller/
 ## Configuration Example
 
 ```yaml
-apiVersion: backup-controller.ufanet.ru/v1alpha1
+apiVersion: v1alpha1
 spec:
   system:
     logLevel: debug
