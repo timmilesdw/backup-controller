@@ -10,7 +10,7 @@ import (
 )
 
 type Config struct {
-	APIVersion string `yaml:"apiVersion" validate:"required,eq=backup-controller.ufanet.ru/v1alpha1"`
+	APIVersion string `yaml:"apiVersion" validate:"v1alpha1"`
 	Spec       Spec   `yaml:"spec" validate:"required"`
 }
 
