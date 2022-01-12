@@ -5,7 +5,7 @@ import "github.com/timmilesdw/backup-controller/pkg/config"
 var Exporters []Exporter
 var Storers []Storer
 
-func PopulateExporters(d config.Databases) {
+func PopulateExporters(d config.Exporters) {
 	// Populate with postgres databases
 	for _, v := range d.Postgres {
 		Exporters = append(Exporters, Postgres{
@@ -29,9 +29,9 @@ func PopulateExporters(d config.Databases) {
 	}
 }
 
-func PopulateStorers(d config.Storages) {
+func PopulateStorers(d config.Storers) {
 	// Populate with s3 storers
-	for _, v := range d.S3Storage {
+	for _, v := range d.S3Storer {
 		Storers = append(Storers, &S3{
 			Endpoint:     v.Endpoint,
 			Region:       v.Region,

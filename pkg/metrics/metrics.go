@@ -3,7 +3,6 @@ package metrics
 import (
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
@@ -22,7 +21,7 @@ var (
 		Help: "Registered Cronjobs",
 	}, []string{"name", "databases", "schedule", "storage_name"})
 	RegisteredDatabases = promauto.NewCounterVec(prometheus.CounterOpts{
-		Name: "backup_controller_registered_databases",
+		Name: "backup_controller_registered_exporters",
 		Help: "Registered Databases",
 	}, []string{"name", "type", "host", "db", "port"})
 	RegisteredStorages = promauto.NewCounterVec(prometheus.CounterOpts{
@@ -66,31 +65,31 @@ func RegisterMetrics(cfg config.Metrics) *MetricsServer {
 		Port:  ":" + strconv.Itoa(cfg.Port),
 		Route: cfg.Path,
 	}
-	for _, db := range cfg.Databases {
-		RegisteredDatabases.WithLabelValues(
-			db.Name, db.Type,
-			db.Host, db.DB,
-			db.Port,
-		).Add(1)
-	}
-	for _, s3 := range cfg.Storages {
-		RegisteredStorages.WithLabelValues(
-			s3.Name,
-			s3.S3.Endpoint,
-			s3.S3.Bucket,
-			s3.S3.Region,
-		).Add(1)
-	}
-	for _, backup := range cfg.Backups {
-		var databases []string
-		for _, dbName := range backup.Databases {
-			databases = append(databases, dbName.Name)
-		}
-		RegisteredBackups.WithLabelValues(
-			backup.Name, strings.Join(databases, ","),
-			backup.Schedule, backup.Storage.Name,
-		).Add(1)
-	}
+	// for _, e := range exporters.Exporters {
+	// 	RegisteredDatabases.WithLabelValues(
+	// 		e.GetName(), e.GetType(),
+	// 		e.GetHost(), e.GetDB(),
+	// 		e.GetPort(),
+	// 	).Add(1)
+	// }
+	// for _, s3 := range cfg.Storages {
+	// 	RegisteredStorages.WithLabelValues(
+	// 		s3.Name,
+	// 		s3.S3.Endpoint,
+	// 		s3.S3.Bucket,
+	// 		s3.S3.Region,
+	// 	).Add(1)
+	// }
+	// for _, backup := range cfg.Backups {
+	// 	var databases []string
+	// 	for _, dbName := range backup.Databases {
+	// 		databases = append(databases, dbName.Name)
+	// 	}
+	// 	RegisteredBackups.WithLabelValues(
+	// 		backup.Name, strings.Join(databases, ","),
+	// 		backup.Schedule, backup.Storage.Name,
+	// 	).Add(1)
+	// }
 	return ms
 }
 

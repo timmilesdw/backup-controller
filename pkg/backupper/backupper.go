@@ -25,11 +25,11 @@ func (b Backupper) ConfigureCron() {
 	for _, cronjob := range b.ConfigSpec.Cronjobs {
 		cron := cronjob
 		logrus.Infof("Setting backup task %s", cron.Name)
-		exporter, err := b.FindExporter(cron.Database)
+		exporter, err := b.FindExporter(cron.Exporter)
 		if err != nil {
 			logrus.Fatal(err)
 		}
-		storer, err := b.FindStorer(cron.Storage)
+		storer, err := b.FindStorer(cron.Storers)
 		if err != nil {
 			logrus.Fatal(err)
 		}
@@ -57,7 +57,7 @@ func (b Backupper) ConfigureCron() {
 	}
 }
 
-func (b Backupper) FindExporter(d config.DatabaseElement) (exporters.Exporter, error) {
+func (b Backupper) FindExporter(d config.ExporterElement) (exporters.Exporter, error) {
 	for _, e := range exporters.Exporters {
 		if d.Type == e.GetType() {
 			if d.Name == e.GetName() {
@@ -68,7 +68,7 @@ func (b Backupper) FindExporter(d config.DatabaseElement) (exporters.Exporter, e
 	return nil, fmt.Errorf("exporter %s not found", d.Name)
 }
 
-func (b Backupper) FindStorer(d config.StorageElement) (exporters.Storer, error) {
+func (b Backupper) FindStorer(d config.StorerElement) (exporters.Storer, error) {
 	for _, s := range exporters.Storers {
 		if d.Type == s.GetType() {
 			if d.Name == s.GetName() {

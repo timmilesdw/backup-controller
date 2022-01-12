@@ -1,69 +1,53 @@
-apiVersion: v1alpha1
-spec:
-  system:
-    logLevel: debug
-    web:
-      port: 3000
-      metrics: /metrics
-  # S3 storages configuration
-  storages:
-    - name: s3
-      s3:
-        endpoint: minio:9000
-        region: us-west-1
-        bucket: dbbackups
-        access-key: minio
-        client-secret: miniostorage
-    - name: s3-2
-      s3:
-        endpoint: minio:9000
-        region: us-west-1
-        bucket: dbbackups
-        access-key: minio
-        client-secret: miniostorage
-    - name: s3-3
-      s3:
-        endpoint: minio:9000
-        region: us-west-1
-        bucket: dbbackups
-        access-key: minio
-        client-secret: miniostorage
+logger:
+  level: debug
 
+# Web server configuration
+ui:
+  enabled: true
+  port: 3000
+  basePath: /
+
+# Metrics server configuration
+metrics:
+  enabled: true
+  basePath: /
+  path: /metrics
+  port: 3001
+
+backupper:
+  # Storages configuration
+  storers:
+    # Type of storage. Currently only s3 is available
+    s3:
+      - name: s3
+        endpoint: minio:9000
+        region: us-west-1
+        bucket: db-backups
+        access-key: minio
+        client-secret: miniostorage
   # Databases configuration
-  databases:
-    - name: pg
-      type: postgres
-      host: postgres
-      port: 5432
-      db: postgres
-      user: postgres
-      password: root
-      options:
-        - --insert
-    - name: pg-1
-      type: postgres
-      host: postgres
-      port: 5432
-      db: postgres
-      user: postgres
-      password: root
-    - name: pg-2
-      type: postgres
-      host: postgres
-      port: 5432
-      db: postgres
-      user: postgres
-      password: root
-      options:
-        - --insert
-
+  exporters:
+    # Database types. Currently only postgres is available
+    postgres:
+      - name: pg
+        host: postgres
+        port: 5432
+        db: postgres
+        user: postgres
+        password: root
+        method:
+          type: pg_dump
+          options:
+            - --insert
   # Cron schedules
-  backups:
-    # Cron package used: github.com/robfig/cron
+  cronjobs:
     - name: pg-backup-task
-      schedule: "50 0 2 * *"
+      # Cron package used: github.com/robfig/cron
+      schedule: "* * * * *"
       # Databases to backup
-      databases:
-        - name: pg
-      storage:
+      exporter:
+        name: pg
+        type: postgres
+      storer:
         name: s3
+        type: s3

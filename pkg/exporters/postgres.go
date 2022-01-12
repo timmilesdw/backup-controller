@@ -44,10 +44,40 @@ func (x Postgres) GetType() string {
 	return "postgres"
 }
 
+func (x Postgres) GetDB() string {
+	return x.DB
+}
+
+func (x Postgres) GetHost() string {
+	return x.Host
+}
+
+func (x Postgres) GetPort() string {
+	return x.Port
+}
+
+func (x Postgres) GetMap() map[string]interface{} {
+	v := map[string]interface{}{
+		"name": x.Name,
+		"type": x.GetType(),
+		"method": map[string]interface{}{
+			"type":    x.Method.Type,
+			"options": x.Method.Options,
+		},
+		"parameters": map[string]interface{}{
+			"host": x.Host,
+			"port": x.Port,
+			"db":   x.DB,
+		},
+	}
+
+	return v
+}
+
 // Export produces a `pg_dump` of the specified database, and creates a gzip compressed tarball archive.
 func (x Postgres) Export() *ExportResult {
 	result := &ExportResult{MIME: "application/x-tar"}
-	result.Path = fmt.Sprintf(`bu_%v_%v.sql.tar.gz`, x.Name+x.DB, time.Now().Unix())
+	result.Path = fmt.Sprintf(`%v_%v_%v.sql.tar.gz`, x.Name, x.DB, time.Now().Unix())
 	options := append(x.dumpOptions(), "-v", "-Fc", fmt.Sprintf(`-f%v`, result.Path))
 	cmd := exec.Command(PGDumpCmd, options...)
 	cmd.Env = os.Environ()

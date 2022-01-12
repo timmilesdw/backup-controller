@@ -25,16 +25,16 @@ type Metrics struct {
 }
 
 type Backupper struct {
-	Storages  Storages  `yaml:"storages" validate:"required,dive"`
-	Databases Databases `yaml:"databases" validate:"required,dive"`
+	Storers   Storers   `yaml:"storers" validate:"required,dive"`
+	Exporters Exporters `yaml:"exporters" validate:"required,dive"`
 	Cronjobs  []Cronjob `yaml:"cronjobs" validate:"required,dive"`
 }
 
-type Databases struct {
-	Postgres []PostgresDatabase `yaml:"postgres"`
+type Exporters struct {
+	Postgres []PostgresExporter `yaml:"postgres"`
 }
 
-type PostgresDatabase struct {
+type PostgresExporter struct {
 	Name     string `yaml:"name" validate:"required"`
 	Host     string `yaml:"host" validate:"required"`
 	Port     string `yaml:"port" validate:"required"`
@@ -49,21 +49,21 @@ type PostgresDatabase struct {
 type Cronjob struct {
 	Name     string          `yaml:"name" validate:"required"`
 	Schedule string          `yaml:"schedule" validate:"required"`
-	Database DatabaseElement `yaml:"database" validate:"required,dive"`
-	Storage  StorageElement  `yaml:"storage" validate:"required"`
+	Exporter ExporterElement `yaml:"exporter" validate:"required,dive"`
+	Storers  StorerElement   `yaml:"storer" validate:"required"`
 }
 
-type DatabaseElement Element
+type ExporterElement Element
 
-type StorageElement Element
+type StorerElement Element
 
 type Element struct {
 	Name string `yaml:"name" validate:"required"`
 	Type string `yaml:"type" validate:"required"`
 }
 
-type Storages struct {
-	S3Storage []S3 `yaml:"s3"`
+type Storers struct {
+	S3Storer []S3 `yaml:"s3"`
 }
 
 type S3 struct {

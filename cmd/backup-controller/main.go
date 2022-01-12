@@ -1,12 +1,18 @@
 package main
 
 import (
+	"os"
+	"os/signal"
+	"syscall"
+
 	"github.com/go-playground/validator/v10"
 	"github.com/sirupsen/logrus"
 	"github.com/timmilesdw/backup-controller/pkg/backupper"
 	"github.com/timmilesdw/backup-controller/pkg/config"
 	"github.com/timmilesdw/backup-controller/pkg/exporters"
 	"github.com/timmilesdw/backup-controller/pkg/logger"
+	"github.com/timmilesdw/backup-controller/pkg/metrics"
+	"github.com/timmilesdw/backup-controller/pkg/server"
 )
 
 func init() {
@@ -32,19 +38,19 @@ func main() {
 		logrus.Fatal(err)
 	}
 	logger.UpdateLogLevel(cfg.Logger)
-	exporters.PopulateExporters(cfg.Backupper.Databases)
-	exporters.PopulateStorers(cfg.Backupper.Storages)
+	exporters.PopulateExporters(cfg.Backupper.Exporters)
+	exporters.PopulateStorers(cfg.Backupper.Storers)
 	backupper := backupper.Backupper{
 		ConfigSpec: cfg.Backupper,
 	}
 	backupper.ConfigureCron()
-	// ms := metrics.RegisterMetrics(cfg.Spec)
-	// go ms.Start()
-	// logrus.Infof("Started metrics server on port %s, route %s", ms.Port, ms.Route)
+	ms := metrics.RegisterMetrics(cfg.Metrics)
+	go ms.Start()
+	logrus.Infof("Started metrics server on port %s, route %s", ms.Port, ms.Route)
 
-	// go backupper.Start()
-	// go server.StartServer(cfg.Spec)
-	// quitChannel := make(chan os.Signal, 1)
-	// signal.Notify(quitChannel, syscall.SIGINT, syscall.SIGTERM)
-	// <-quitChannel
+	go backupper.Start()
+	go server.StartServer(cfg.UI)
+	quitChannel := make(chan os.Signal, 1)
+	signal.Notify(quitChannel, syscall.SIGINT, syscall.SIGTERM)
+	<-quitChannel
 }

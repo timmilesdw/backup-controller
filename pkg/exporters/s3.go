@@ -29,6 +29,20 @@ func (x *S3) GetType() string {
 	return "s3"
 }
 
+func (x *S3) GetMap() map[string]interface{} {
+	v := map[string]interface{}{
+		"name": x.Name,
+		"type": x.GetType(),
+		"parameters": map[string]interface{}{
+			"endpoint": x.Endpoint,
+			"bucket":   x.Bucket,
+			"region":   x.Region,
+		},
+	}
+
+	return v
+}
+
 // Store puts an `ExportResult` struct to an S3 bucket within the specified directory
 func (x *S3) Store(result *ExportResult, directory string) *Error {
 	if result.Error != nil {

@@ -16,7 +16,7 @@ metrics:
 
 backupper:
   # Storages configuration
-  storages:
+  storers:
     # Type of storage. Currently only s3 is available
     s3:
       - name: s3
@@ -26,7 +26,7 @@ backupper:
         access-key: minio
         client-secret: miniostorage
   # Databases configuration
-  databases:
+  exporters:
     # Database types. Currently only postgres is available
     postgres:
       - name: pg

@@ -11,6 +11,10 @@ type Exporter interface {
 	Export() *ExportResult
 	GetName() string
 	GetType() string
+	GetHost() string
+	GetPort() string
+	GetDB() string
+	GetMap() map[string]interface{}
 }
 
 // Error can ship a cmd output as well as the start interface. Useful for understanding why a system command (exec.Command) failed
@@ -40,6 +44,7 @@ type Storer interface {
 	Store(result *ExportResult, directory string) *Error
 	GetName() string
 	GetType() string
+	GetMap() map[string]interface{}
 }
 
 //////////////
