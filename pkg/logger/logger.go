@@ -22,7 +22,7 @@ func InitLog(level string) error {
 	return nil
 }
 
-func UpdateLogLevel(l config.System) {
+func UpdateLogLevel(l config.Logger) {
 	lvl, err := logrus.ParseLevel(l.LogLevel)
 	if err != nil {
 		logrus.Fatal(err)

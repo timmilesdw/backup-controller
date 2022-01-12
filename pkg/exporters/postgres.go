@@ -30,7 +30,18 @@ type Postgres struct {
 	Password string
 	// Extra pg_dump options
 	// e.g []string{"--inserts"}
-	Options []string
+	Method struct {
+		Type    string
+		Options []string
+	}
+}
+
+func (x Postgres) GetName() string {
+	return x.Name
+}
+
+func (x Postgres) GetType() string {
+	return "postgres"
 }
 
 // Export produces a `pg_dump` of the specified database, and creates a gzip compressed tarball archive.
@@ -55,7 +66,7 @@ func (x Postgres) Export() *ExportResult {
 }
 
 func (x Postgres) dumpOptions() []string {
-	options := x.Options
+	options := x.Method.Options
 
 	if x.DB != "" {
 		options = append(options, fmt.Sprintf(`-d%v`, x.DB))

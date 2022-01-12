@@ -2,6 +2,7 @@ package metrics
 
 import (
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -60,10 +61,10 @@ type Gauges struct {
 	RunningBackups prometheus.Gauge
 }
 
-func RegisterMetrics(cfg config.Spec) *MetricsServer {
+func RegisterMetrics(cfg config.Metrics) *MetricsServer {
 	ms := &MetricsServer{
-		Port:  ":" + cfg.System.Web.Port,
-		Route: cfg.System.Web.Metrics,
+		Port:  ":" + strconv.Itoa(cfg.Port),
+		Route: cfg.Path,
 	}
 	for _, db := range cfg.Databases {
 		RegisteredDatabases.WithLabelValues(

@@ -5,7 +5,6 @@ spec:
     web:
       port: 3000
       metrics: /metrics
-
   # S3 storages configuration
   storages:
     - name: s3
@@ -62,21 +61,9 @@ spec:
   backups:
     # Cron package used: github.com/robfig/cron
     - name: pg-backup-task
-      schedule: "* * * * *"
+      schedule: "50 0 2 * *"
       # Databases to backup
       databases:
         - name: pg
-      storage:
-        name: s3
-    - name: pg-backup-task-2
-      schedule: "* * * * *"
-      databases:
-        - name: pg-1
-      storage:
-        name: s3
-    - name: pg-backup-task-3
-      schedule: "*/3 * * * *"
-      databases:
-        - name: pg-2
       storage:
         name: s3

@@ -8,7 +8,9 @@ import (
 
 // Exporter is expected to export "something" to a file and return a complete `ExportResult` struct (`Path`, `MIME`, `Error`). If any error occurs during it's work, it should set the error to the result's `Error` attribute
 type Exporter interface {
-	Export() (*ExportResult, *Error)
+	Export() *ExportResult
+	GetName() string
+	GetType() string
 }
 
 // Error can ship a cmd output as well as the start interface. Useful for understanding why a system command (exec.Command) failed
@@ -36,6 +38,8 @@ func makeErr(err error, out string) *Error {
 // Storer takes an `ExportResult` and move it somewhere! To a cloud storage service, for instance...
 type Storer interface {
 	Store(result *ExportResult, directory string) *Error
+	GetName() string
+	GetType() string
 }
 
 //////////////

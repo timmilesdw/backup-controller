@@ -11,6 +11,8 @@ services:
       - ./backup-controller:/etc/backup-controller
     restart: always
     command: --config /etc/backup-controller/config.yaml
+    ports:
+      - 3001:3000
   minio:
     image: minio/minio:RELEASE.2021-12-10T23-03-39Z.fips
     environment:

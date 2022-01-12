@@ -13,7 +13,7 @@ import (
 var c = cron.New()
 
 type Backupper struct {
-	ConfigSpec config.Spec
+	ConfigSpec config.Backupper
 }
 
 func (b Backupper) Start() {
@@ -22,88 +22,68 @@ func (b Backupper) Start() {
 }
 
 func (b Backupper) ConfigureCron() {
-	for _, backup := range b.ConfigSpec.Backups {
-		backup := backup
-		logrus.Infof("Setting backup task %s", backup.Name)
-		var databases []config.Database
-		for _, d := range backup.Databases {
-			db, err := b.FindDatabase(d)
-			if err != nil {
-				logrus.Fatal(err)
-			}
-			databases = append(databases, *db)
+	for _, cronjob := range b.ConfigSpec.Cronjobs {
+		cron := cronjob
+		logrus.Infof("Setting backup task %s", cron.Name)
+		exporter, err := b.FindExporter(cron.Database)
+		if err != nil {
+			logrus.Fatal(err)
 		}
-		storage, err := b.FindStorage(backup.Storage)
+		storer, err := b.FindStorer(cron.Storage)
 		if err != nil {
 			logrus.Fatal(err)
 		}
 		c.AddFunc(
-			backup.Schedule,
+			cron.Schedule,
 			func() {
-				logrus.Printf("Starting task %s", backup.Name)
-				for _, database := range databases {
-					metrics.RunningBackups.WithLabelValues(backup.Name).Inc()
-					err := b.BackupDatabase(database, *storage)
-					if err != nil {
-						metrics.RunningBackups.WithLabelValues(backup.Name).Dec()
-						metrics.FailedBackups.WithLabelValues(backup.Name).Inc()
-						logrus.Fatalf("Backup: [%s]: %s", backup.Name, err)
-					}
-					logrus.Infof(
-						"Backup: [%s]: Database %s successfully backupped to %s",
-						backup.Name,
-						database.Name,
-						storage.Name,
-					)
-					metrics.RunningBackups.WithLabelValues(backup.Name).Dec()
-					metrics.SuccessfullBackups.WithLabelValues(backup.Name).Inc()
+				logrus.Printf("Starting task %s", cron.Name)
+				metrics.RunningBackups.WithLabelValues(cron.Name).Inc()
+				err := b.BackupDatabase(exporter, storer)
+				if err != nil {
+					metrics.RunningBackups.WithLabelValues(cron.Name).Dec()
+					metrics.FailedBackups.WithLabelValues(cron.Name).Inc()
+					logrus.Fatalf("Backup: [%s]: %s", cron.Name, err)
 				}
+				logrus.Infof(
+					"Backup: [%s]: Database %s successfully backupped to %s",
+					cron.Name,
+					exporter.GetName(),
+					storer.GetName(),
+				)
+				metrics.RunningBackups.WithLabelValues(cron.Name).Dec()
+				metrics.SuccessfullBackups.WithLabelValues(cron.Name).Inc()
 			},
 		)
 	}
 }
 
-func (b Backupper) FindDatabase(d config.DatabaseElement) (*config.Database, error) {
-	for _, database := range b.ConfigSpec.Databases {
-		if database.Name == d.Name {
-			return &database, nil
+func (b Backupper) FindExporter(d config.DatabaseElement) (exporters.Exporter, error) {
+	for _, e := range exporters.Exporters {
+		if d.Type == e.GetType() {
+			if d.Name == e.GetName() {
+				return e, nil
+			}
 		}
 	}
-	return nil, fmt.Errorf("database %s not found", d.Name)
+	return nil, fmt.Errorf("exporter %s not found", d.Name)
 }
 
-func (b Backupper) FindStorage(d config.StorageElement) (*config.Storage, error) {
-	for _, storage := range b.ConfigSpec.Storages {
-		if storage.Name == d.Name {
-			return &storage, nil
+func (b Backupper) FindStorer(d config.StorageElement) (exporters.Storer, error) {
+	for _, s := range exporters.Storers {
+		if d.Type == s.GetType() {
+			if d.Name == s.GetName() {
+				return s, nil
+			}
 		}
 	}
-	return nil, fmt.Errorf("storage %s not found", d.Name)
+	return nil, fmt.Errorf("storer %s not found", d.Name)
 }
 
-func (b Backupper) BackupDatabase(d config.Database, s config.Storage) error {
-	storage := exporters.S3{
-		Endpoint:     s.S3.Endpoint,
-		Region:       s.S3.Region,
-		Bucket:       s.S3.Bucket,
-		AccessKey:    s.S3.AccessKey,
-		ClientSecret: s.S3.ClientSecret,
-		UseSSL:       false,
+func (b Backupper) BackupDatabase(e exporters.Exporter, s exporters.Storer) error {
+	folderName := fmt.Sprintf("%v_%v_backups/", e.GetType(), e.GetName())
+	err := e.Export().To(folderName, s)
+	if err != nil {
+		return err
 	}
-	if d.Type == "postgres" {
-		db := exporters.Postgres{
-			Name:     d.Name,
-			Host:     d.Host,
-			Port:     d.Port,
-			DB:       d.DB,
-			Username: d.User,
-			Password: d.Password,
-		}
-		err := db.Export().To(d.Name+d.DB+"_backups/", &storage)
-		if err != nil {
-			return err
-		}
-		return nil
-	}
-	return fmt.Errorf("db type not found")
+	return nil
 }

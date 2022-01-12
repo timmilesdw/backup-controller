@@ -1,16 +1,12 @@
 package main
 
 import (
-	"os"
-	"os/signal"
-	"syscall"
-
 	"github.com/go-playground/validator/v10"
 	"github.com/sirupsen/logrus"
 	"github.com/timmilesdw/backup-controller/pkg/backupper"
 	"github.com/timmilesdw/backup-controller/pkg/config"
+	"github.com/timmilesdw/backup-controller/pkg/exporters"
 	"github.com/timmilesdw/backup-controller/pkg/logger"
-	"github.com/timmilesdw/backup-controller/pkg/metrics"
 )
 
 func init() {
@@ -30,26 +26,25 @@ func main() {
 	if err != nil {
 		if verr, ok := err.(validator.ValidationErrors); ok {
 			for _, err := range verr {
-				if err.Field() == "APIVersion" {
-					logrus.Fatalf("Unknown APIVersion: %s", err.Value())
-				}
 				logrus.Fatal(err)
 			}
 		}
 		logrus.Fatal(err)
 	}
-	logger.UpdateLogLevel(cfg.Spec.System)
+	logger.UpdateLogLevel(cfg.Logger)
+	exporters.PopulateExporters(cfg.Backupper.Databases)
+	exporters.PopulateStorers(cfg.Backupper.Storages)
 	backupper := backupper.Backupper{
-		ConfigSpec: cfg.Spec,
+		ConfigSpec: cfg.Backupper,
 	}
 	backupper.ConfigureCron()
-	ms := metrics.RegisterMetrics(cfg.Spec)
-	go ms.Start()
-	logrus.Infof("Started metrics server on port %s, route %s", ms.Port, ms.Route)
+	// ms := metrics.RegisterMetrics(cfg.Spec)
+	// go ms.Start()
+	// logrus.Infof("Started metrics server on port %s, route %s", ms.Port, ms.Route)
 
-	backupper.Start()
-
-	quitChannel := make(chan os.Signal, 1)
-	signal.Notify(quitChannel, syscall.SIGINT, syscall.SIGTERM)
-	<-quitChannel
+	// go backupper.Start()
+	// go server.StartServer(cfg.Spec)
+	// quitChannel := make(chan os.Signal, 1)
+	// signal.Notify(quitChannel, syscall.SIGINT, syscall.SIGTERM)
+	// <-quitChannel
 }

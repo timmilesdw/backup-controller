@@ -9,67 +9,6 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type Config struct {
-	APIVersion string `yaml:"apiVersion" validate:"required,eq=v1alpha1"`
-	Spec       Spec   `yaml:"spec" validate:"required"`
-}
-
-type Spec struct {
-	System    System     `yaml:"system" validate:"required"`
-	Storages  []Storage  `yaml:"storages" validate:"required,dive"`
-	Databases []Database `yaml:"databases" validate:"required,dive"`
-	Backups   []Backup   `yaml:"backups" validate:"required,dive"`
-}
-
-type Backup struct {
-	Name      string            `yaml:"name" validate:"required"`
-	Schedule  string            `yaml:"schedule" validate:"required"`
-	Databases []DatabaseElement `yaml:"databases" validate:"required,dive"`
-	Storage   StorageElement    `yaml:"storage" validate:"required"`
-}
-
-type StorageElement struct {
-	Name string `yaml:"name" validate:"required"`
-}
-
-type DatabaseElement struct {
-	Name string `yaml:"name" validate:"required"`
-}
-
-type Database struct {
-	Name     string   `yaml:"name" validate:"required"`
-	Type     string   `yaml:"type" validate:"required,eq=postgres"`
-	Host     string   `yaml:"host" validate:"required"`
-	Port     string   `yaml:"port" validate:"required"`
-	DB       string   `yaml:"db" validate:"required"`
-	User     string   `yaml:"user" validate:"required"`
-	Password string   `yaml:"password" validate:"required"`
-	Options  []string `yaml:"options"`
-}
-
-type Storage struct {
-	Name string `yaml:"name" validate:"required"`
-	S3   S3     `yaml:"s3" validate:"required"`
-}
-
-type S3 struct {
-	Endpoint     string `yaml:"endpoint" validate:"required"`
-	Region       string `yaml:"region" validate:"required"`
-	Bucket       string `yaml:"bucket" validate:"required"`
-	AccessKey    string `yaml:"access-key" validate:"required"`
-	ClientSecret string `yaml:"client-secret" validate:"required"`
-}
-
-type System struct {
-	LogLevel string `yaml:"logLevel" validate:"required"`
-	Web      Web    `yaml:"web" validate:"required"`
-}
-
-type Web struct {
-	Port    string `yaml:"port" validate:"required"`
-	Metrics string `yaml:"metrics" validate:"required"`
-}
-
 func NewConfig(configPath string) (*Config, error) {
 	validate := validator.New()
 	config := &Config{}

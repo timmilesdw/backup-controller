@@ -12,12 +12,21 @@ import (
 
 // S3 is a `Storer` interface that puts an ExportResult to the specified S3 bucket. Don't use your main AWS keys for this!! Create read-only keys using IAM
 type S3 struct {
+	Name         string
 	Endpoint     string
 	Region       string
 	Bucket       string
 	AccessKey    string
 	ClientSecret string
 	UseSSL       bool
+}
+
+func (x *S3) GetName() string {
+	return x.Name
+}
+
+func (x *S3) GetType() string {
+	return "s3"
 }
 
 // Store puts an `ExportResult` struct to an S3 bucket within the specified directory
