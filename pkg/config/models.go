@@ -12,19 +12,20 @@ type Logger struct {
 }
 
 type UI struct {
-	Enabled  bool   `yaml:"enabled" validate:"required"`
+	Enabled  *bool  `yaml:"enabled" validate:"required"`
 	Port     int    `yaml:"port" validate:"required,lte=65535,gte=1024"`
 	BasePath string `yaml:"basePath" validate:"required,startswith=/"`
 }
 
 type Metrics struct {
-	Enabled  bool   `yaml:"enabled" validate:"required"`
+	Enabled  *bool  `yaml:"enabled" validate:"required"`
 	Port     int    `yaml:"port" validate:"required,lte=65535,gte=1024"`
 	BasePath string `yaml:"basePath" validate:"required,startswith=/"`
 	Path     string `yaml:"path" validate:"required,startswith=/"`
 }
 
 type Backupper struct {
+	Enabled   *bool     `yaml:"enabled" validate:"required"`
 	Storers   Storers   `yaml:"storers" validate:"required,dive"`
 	Exporters Exporters `yaml:"exporters" validate:"required,dive"`
 	Cronjobs  []Cronjob `yaml:"cronjobs" validate:"required,dive"`
@@ -42,7 +43,7 @@ type PostgresExporter struct {
 	User     string `yaml:"user" validate:"required"`
 	Password string `yaml:"password" validate:"required"`
 	Method   struct {
-		Type    string   `yaml:"type" validate:"required"`
+		Type    string   `yaml:"type" validate:"required,eq=pg_dump"`
 		Options []string `yaml:"options"`
 	}
 }
@@ -50,7 +51,7 @@ type Cronjob struct {
 	Name     string          `yaml:"name" validate:"required"`
 	Schedule string          `yaml:"schedule" validate:"required"`
 	Exporter ExporterElement `yaml:"exporter" validate:"required,dive"`
-	Storers  StorerElement   `yaml:"storer" validate:"required"`
+	Storers  StorerElement   `yaml:"storer" validate:"required,dive"`
 }
 
 type ExporterElement Element

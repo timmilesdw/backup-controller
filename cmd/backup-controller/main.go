@@ -23,7 +23,6 @@ func init() {
 }
 
 func main() {
-	logrus.Info("Hello from backup-controller!")
 	cfgPath, err := config.ParseFlags()
 	if err != nil {
 		logrus.Fatal(err)
@@ -38,18 +37,23 @@ func main() {
 		logrus.Fatal(err)
 	}
 	logger.UpdateLogLevel(cfg.Logger)
-	exporters.PopulateExporters(cfg.Backupper.Exporters)
-	exporters.PopulateStorers(cfg.Backupper.Storers)
-	backupper := backupper.Backupper{
-		ConfigSpec: cfg.Backupper,
+	if *cfg.Metrics.Enabled {
+		ms := metrics.RegisterMetrics(cfg.Metrics)
+		go ms.Start()
+		logrus.Infof("Started metrics server on port %s, route %s", ms.Port, ms.Route)
 	}
-	backupper.ConfigureCron()
-	ms := metrics.RegisterMetrics(cfg.Metrics)
-	go ms.Start()
-	logrus.Infof("Started metrics server on port %s, route %s", ms.Port, ms.Route)
-
-	go backupper.Start()
-	go server.StartServer(cfg.UI)
+	if *cfg.Backupper.Enabled {
+		exporters.PopulateExporters(cfg.Backupper.Exporters)
+		exporters.PopulateStorers(cfg.Backupper.Storers)
+		backupper := backupper.Backupper{
+			ConfigSpec: cfg.Backupper,
+		}
+		backupper.ConfigureCron()
+		go backupper.Start()
+	}
+	if *cfg.UI.Enabled {
+		go server.StartServer(cfg.UI)
+	}
 	quitChannel := make(chan os.Signal, 1)
 	signal.Notify(quitChannel, syscall.SIGINT, syscall.SIGTERM)
 	<-quitChannel

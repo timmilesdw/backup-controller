@@ -15,6 +15,7 @@ metrics:
   port: 3001
 
 backupper:
+  enabled: true
   # Storages configuration
   storers:
     # Type of storage. Currently only s3 is available

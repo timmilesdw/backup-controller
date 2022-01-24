@@ -3,18 +3,19 @@ logger:
 
 # Web server configuration
 ui:
-  enabled: true
+  enabled: false
   port: 3000
   basePath: /
 
 # Metrics server configuration
 metrics:
-  enabled: true
+  enabled: false
   basePath: /
   path: /metrics
   port: 3001
 
 backupper:
+  enabled: true
   # Storages configuration
   storers:
     # Type of storage. Currently only s3 is available
@@ -45,9 +46,9 @@ backupper:
       # Cron package used: github.com/robfig/cron
       schedule: "* * * * *"
       # Databases to backup
-      database:
+      exporter:
         name: pg
         type: postgres
-      storage:
+      storer:
         name: s3
         type: s3
