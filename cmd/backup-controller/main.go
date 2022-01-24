@@ -9,7 +9,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/timmilesdw/backup-controller/pkg/backupper"
 	"github.com/timmilesdw/backup-controller/pkg/config"
-	"github.com/timmilesdw/backup-controller/pkg/exporters"
 	"github.com/timmilesdw/backup-controller/pkg/logger"
 	"github.com/timmilesdw/backup-controller/pkg/metrics"
 	"github.com/timmilesdw/backup-controller/pkg/server"
@@ -43,8 +42,8 @@ func main() {
 		logrus.Infof("Started metrics server on port %s, route %s", ms.Port, ms.Route)
 	}
 	if *cfg.Backupper.Enabled {
-		exporters.PopulateExporters(cfg.Backupper.Exporters)
-		exporters.PopulateStorers(cfg.Backupper.Storers)
+		backupper.PopulateExporters(cfg.Backupper.Exporters)
+		backupper.PopulateStorers(cfg.Backupper.Storers)
 		backupper := backupper.Backupper{
 			ConfigSpec: cfg.Backupper,
 		}

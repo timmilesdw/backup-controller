@@ -3,8 +3,8 @@ package server
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/sirupsen/logrus"
+	"github.com/timmilesdw/backup-controller/pkg/backupper"
 	"github.com/timmilesdw/backup-controller/pkg/config"
-	"github.com/timmilesdw/backup-controller/pkg/exporters"
 )
 
 func StartServer(conf config.UI) {
@@ -18,7 +18,7 @@ func StartServer(conf config.UI) {
 	// })
 	v0.Get("/storers", func(c *fiber.Ctx) error {
 		storers := []map[string]interface{}{}
-		for _, st := range exporters.Storers {
+		for _, st := range backupper.Storers {
 			storers = append(storers, st.GetMap())
 		}
 
@@ -26,7 +26,7 @@ func StartServer(conf config.UI) {
 	})
 	v0.Get("/exporters", func(c *fiber.Ctx) error {
 		exps := []map[string]interface{}{}
-		for _, ex := range exporters.Exporters {
+		for _, ex := range backupper.Exporters {
 			exps = append(exps, ex.GetMap())
 		}
 

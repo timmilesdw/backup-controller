@@ -6,7 +6,6 @@ import (
 	"github.com/robfig/cron/v3"
 	"github.com/sirupsen/logrus"
 	"github.com/timmilesdw/backup-controller/pkg/config"
-	"github.com/timmilesdw/backup-controller/pkg/exporters"
 	"github.com/timmilesdw/backup-controller/pkg/metrics"
 )
 
@@ -57,8 +56,8 @@ func (b Backupper) ConfigureCron() {
 	}
 }
 
-func (b Backupper) FindExporter(d config.ExporterElement) (exporters.Exporter, error) {
-	for _, e := range exporters.Exporters {
+func (b Backupper) FindExporter(d config.ExporterElement) (Exporter, error) {
+	for _, e := range Exporters {
 		if d.Type == e.GetType() {
 			if d.Name == e.GetName() {
 				return e, nil
@@ -68,8 +67,8 @@ func (b Backupper) FindExporter(d config.ExporterElement) (exporters.Exporter, e
 	return nil, fmt.Errorf("exporter %s not found", d.Name)
 }
 
-func (b Backupper) FindStorer(d config.StorerElement) (exporters.Storer, error) {
-	for _, s := range exporters.Storers {
+func (b Backupper) FindStorer(d config.StorerElement) (Storer, error) {
+	for _, s := range Storers {
 		if d.Type == s.GetType() {
 			if d.Name == s.GetName() {
 				return s, nil
@@ -79,7 +78,7 @@ func (b Backupper) FindStorer(d config.StorerElement) (exporters.Storer, error) 
 	return nil, fmt.Errorf("storer %s not found", d.Name)
 }
 
-func (b Backupper) BackupDatabase(e exporters.Exporter, s exporters.Storer) error {
+func (b Backupper) BackupDatabase(e Exporter, s Storer) error {
 	folderName := fmt.Sprintf("%v_%v_backups/", e.GetType(), e.GetName())
 	err := e.Export().To(folderName, s)
 	if err != nil {

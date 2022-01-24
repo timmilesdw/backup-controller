@@ -1,4 +1,4 @@
-package exporters
+package backupper
 
 import "github.com/timmilesdw/backup-controller/pkg/config"
 
